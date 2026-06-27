@@ -1,0 +1,282 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Kronos · Adani palette */
+  --navy: #0F172A;
+  --navy-2: #1E293B;
+  --surface: #F8FAFC;
+  --white: #FFFFFF;
+  --teal: #0D9488;
+  --teal-2: #14B8A6;
+  --slate-6: #475569;
+  --slate-3: #CBD5E1;
+  --slate-1: #F1F5F9;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  background: var(--surface);
+  color: var(--navy);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code, .mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 222 47% 11%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 173 80% 32%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 173 80% 32%;
+    --radius: 0.625rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+}
+
+/* ── KRONOS Components ─────────────────── */
+
+.k-header {
+  background: var(--navy);
+  border-bottom: 1px solid var(--navy-2);
+}
+
+.k-tabs {
+  background: var(--navy);
+  border-bottom: 1px solid var(--navy-2);
+}
+
+.k-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 18px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #64748B;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid transparent;
+  border-bottom: none;
+  transition: color 0.15s, background 0.15s;
+  user-select: none;
+  position: relative;
+  text-decoration: none;
+  margin-bottom: -1px;
+}
+
+.k-tab:hover {
+  color: #CBD5E1;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.k-tab.active {
+  color: var(--navy);
+  background: var(--surface);
+  border-color: #334155;
+  border-bottom: 1px solid var(--surface);
+}
+
+.k-tab.active .k-tab-icon {
+  color: var(--teal);
+}
+
+/* Card with teal stripe accent */
+.k-card {
+  background: #fff;
+  border: 0.5px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 24px 28px;
+  position: relative;
+  overflow: visible;
+}
+
+.k-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 16px;
+  bottom: 16px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--teal);
+}
+
+.k-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.45px;
+  color: #64748B;
+  margin-bottom: 6px;
+}
+
+/* Custom scroll */
+.k-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
+.k-scroll::-webkit-scrollbar-track { background: var(--surface); border-radius: 99px; }
+.k-scroll::-webkit-scrollbar-thumb { background: var(--slate-3); border-radius: 99px; }
+.k-scroll::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* Summary badge cards */
+.k-summary-success { background: #D1FAE5; }
+.k-summary-success .k-label-tag { color: #065F46; }
+.k-summary-success .k-count { color: #022C22; }
+
+.k-summary-warning { background: #FEF3C7; }
+.k-summary-warning .k-label-tag { color: #78350F; }
+.k-summary-warning .k-count { color: #451A03; }
+
+.k-summary-danger { background: #FEE2E2; }
+.k-summary-danger .k-label-tag { color: #991B1B; }
+.k-summary-danger .k-count { color: #450A0A; }
+
+/* Table row states */
+.row-failed td { background: #FFF1F2 !important; }
+.row-warning td { background: #FFFBEB !important; }
+.row-success td { background: #F0FDF4 !important; }
+
+/* SQL editor */
+.k-sql {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  background: var(--navy);
+  color: #E2E8F0;
+  border: 1px solid var(--navy-2);
+  border-radius: 10px;
+  padding: 16px 18px;
+  width: 100%;
+  min-height: 150px;
+  resize: vertical;
+  white-space: pre;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.k-sql:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+/* Login page gradient halo */
+.k-login-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(13, 148, 136, 0.10), transparent 60%),
+    radial-gradient(ellipse 60% 60% at 100% 100%, rgba(99, 102, 241, 0.08), transparent 60%),
+    radial-gradient(ellipse 60% 60% at 0% 100%, rgba(244, 76, 35, 0.06), transparent 60%),
+    var(--surface);
+}
+
+.k-login-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 20px;
+  box-shadow:
+    0 24px 48px -16px rgba(15, 23, 42, 0.16),
+    0 2px 4px rgba(15, 23, 42, 0.04);
+}
+
+/* Animated grid background on dashboard hero */
+.k-grid-bg {
+  background-image:
+    linear-gradient(rgba(13, 148, 136, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 148, 136, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Subtle hover lift */
+.k-lift {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.k-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -10px rgba(15, 23, 42, 0.1);
+}
+
+/* SSO button styles */
+.k-sso-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  background: #fff;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--navy);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.k-sso-btn:hover {
+  border-color: var(--teal);
+  background: #F0FDF9;
+  transform: translateY(-1px);
+}
+
+.k-sso-primary {
+  background: var(--navy);
+  color: #F1F5F9;
+  border-color: var(--navy);
+}
+.k-sso-primary:hover {
+  background: var(--navy-2);
+  border-color: var(--navy-2);
+  color: #fff;
+}
+
+/* Dot pulse */
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+.k-pulse-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--teal);
+  animation: pulseDot 1.6s ease-in-out infinite;
+}
+
+/* Stripe gradient line for accents (Adani brand colors) */
+.k-stripe-gradient {
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, #00B16B 0%, #006DB6 35%, #8E278F 65%, #F04C23 100%);
+  border-radius: 99px;
+}
