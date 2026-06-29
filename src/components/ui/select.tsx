@@ -8,6 +8,7 @@ interface SelectContextType {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   labelMap: Record<string, React.ReactNode>;
   registerLabel: (value: string, label: React.ReactNode) => void;
+  disabled?: boolean;
 }
 
 const SelectContext = createContext<SelectContextType | null>(null);
@@ -15,10 +16,11 @@ const SelectContext = createContext<SelectContextType | null>(null);
 interface SelectProps {
   value?: string;
   onValueChange?: (value: string) => void;
+  disabled?: boolean;
   children: React.ReactNode;
 }
 
-export function Select({ value, onValueChange, children }: SelectProps) {
+export function Select({ value, onValueChange, disabled, children }: SelectProps) {
   const [open, setOpen] = useState(false);
   const [labelMap, setLabelMap] = useState<Record<string, React.ReactNode>>({});
   const rootRef = useRef<HTMLDivElement>(null);
@@ -38,9 +40,14 @@ export function Select({ value, onValueChange, children }: SelectProps) {
     return () => document.removeEventListener("mousedown", onClick);
   }, [open]);
 
+  // If disabled flips to true while the dropdown is open, force it closed
+  useEffect(() => {
+    if (disabled) setOpen(false);
+  }, [disabled]);
+
   return (
     <SelectContext.Provider
-      value={{ value, onChange: onValueChange, open, setOpen, labelMap, registerLabel }}
+      value={{ value, onChange: onValueChange, open, setOpen, labelMap, registerLabel, disabled }}
     >
       <div className="relative" ref={rootRef}>
         {children}
@@ -52,17 +59,25 @@ export function Select({ value, onValueChange, children }: SelectProps) {
 export function SelectTrigger({
   className = "",
   children,
+  disabled,
 }: {
   className?: string;
   children?: React.ReactNode;
+  disabled?: boolean;
 }) {
   const ctx = useContext(SelectContext)!;
+  const isDisabled = disabled ?? ctx.disabled ?? false;
 
   return (
     <button
       type="button"
-      onClick={() => ctx.setOpen((o) => !o)}
-      className={`flex items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-3 text-sm text-left ${className}`}
+      disabled={isDisabled}
+      aria-disabled={isDisabled}
+      onClick={() => {
+        if (isDisabled) return;
+        ctx.setOpen((o) => !o);
+      }}
+      className={`flex items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-3 text-sm text-left disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-slate-50 ${className}`}
     >
       {children}
       <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${ctx.open ? "rotate-180" : ""}`} />

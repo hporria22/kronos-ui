@@ -43,7 +43,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ tone, label, value, testid })
 );
 
 const Validation: React.FC = () => {
-  const [type, setType] = useState<string>("workorder");
+  const [type, setType] = useState<string>("Work Order");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [rows, setRows] = useState<ValidationRow[] | null>(null);

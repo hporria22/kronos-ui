@@ -46,7 +46,7 @@ const Layout: React.FC = () => {
           <div className="hidden sm:flex items-center gap-2 pl-4 border-l border-[#1E293B]">
             <span className="text-[15px] font-semibold text-slate-100 tracking-tight">Kronos</span>
             <span className="text-[11px] uppercase tracking-wider text-slate-500 px-2 py-0.5 rounded-full border border-slate-700">
-              v2.4
+              v2.0
             </span>
           </div>
         </div>

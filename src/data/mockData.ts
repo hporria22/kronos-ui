@@ -40,18 +40,14 @@ export const queryTypes: QueryType[] = [
   { value: "intra_transfers", label: "Intra Transfers (90d)" },
 ];
 
-export const sampleSql: Record<string, string> = {
-  ep_attendance:
-    "SELECT ep_no, name, plant_code, present_days, leave_daysnFROM attendance.monthly_summarynWHERE plant_code = :plant AND month = :monthnORDER BY ep_no ASCnLIMIT 100;",
-  wo_active:
-    "SELECT wo_id, vendor, scope, start_dt, end_dt, statusnFROM ops.work_ordersnWHERE status IN ('ACTIVE','EXTENDED') AND business_type = :btnORDER BY end_dt ASC;",
-  kpi_failed:
-    "SELECT kpi_id, kpi_name, severity, plant_code, fail_count, last_failed_atnFROM quality.kpi_runsnWHERE status = 'FAILED' AND kpi_type = :kpi_typenORDER BY fail_count DESCnLIMIT 50;",
-  plant_compliance:
-    "SELECT plant_code, plant_name, compliance_score, audits_pendingnFROM compliance.plant_indexnWHERE business_type = :btnORDER BY compliance_score DESC;",
-  intra_transfers:
-    "SELECT transfer_id, ep_no, from_plant, to_plant, effective_dtnFROM hr.intra_transfersnWHERE effective_dt >= CURRENT_DATE - INTERVAL '90' DAYnORDER BY effective_dt DESC;",
-};
+// export const sampleSql: Record<string, string> = {
+//   ep_attendance:
+//     "SELECT * FROM VP_WORKMENDETAILS",
+//   wo_active:
+//     "SELECT * FROM CMSWORKORDER",
+//   intra_transfers:
+//     "SELECT transfer_id, ep_no, from_plant, to_plant, effective_dtnFROM hr.intra_transfersnWHERE effective_dt >= CURRENT_DATE - INTERVAL '90' DAYnORDER BY effective_dt DESC;",
+// };
 
 export const queryResults: Record<string, QueryResult> = {
   ep_attendance: {
@@ -117,16 +113,16 @@ export const validationRows: ValidationRow[] = [
 ];
 
 export const dashboardStats: DashboardStat[] = [
-  { label: "Active Work Orders", value: 412, delta: "+8%", tone: "teal" },
-  { label: "EPs Tracked", value: 18742, delta: "+1.2%", tone: "navy" },
+  { label: "Active EPs Tracked", value: 263632, delta: "+8%", tone: "teal" },
+  { label: "Businesses", value: 12, delta: "+1.2%", tone: "navy" },
   { label: "Validation Pass Rate", value: "94.6%", delta: "+0.4%", tone: "green" },
   { label: "Failed KPIs (24h)", value: 27, delta: "-12%", tone: "red" },
 ];
 
 export const recentActivity: ActivityItem[] = [
-  { time: "2 min ago", actor: "Pooja Verma", action: "ran Database Query", detail: "Active Work Orders · APL" },
-  { time: "14 min ago", actor: "Rahul Singh", action: "downloaded Attendance Report", detail: "P001 · Jan 2026" },
-  { time: "31 min ago", actor: "System", action: "completed Failed KPI run", detail: "27 records · 3 plants" },
-  { time: "1 hr ago", actor: "Imran Khan", action: "uploaded Bulk Validation file", detail: "324 rows · 96.3% pass" },
-  { time: "3 hr ago", actor: "Neha Patel", action: "emailed Failed KPI summary", detail: "Compliance leads · 8 recipients" },
+  { time: "2 min ago", actor: "Nikita Kosti", action: "ran Database Query", detail: "Active Work Orders · APL" },
+  { time: "14 min ago", actor: "Ashish Makwana", action: "downloaded Attendance Report", detail: "P001 · Jan 2026" },
+  { time: "31 min ago", actor: "Jaydeep Thaker", action: "completed Failed KPI run", detail: "27 records · 3 plants" },
+  { time: "1 hr ago", actor: "Kashish", action: "uploaded Bulk Validation file", detail: "324 rows · 96.3% pass" },
+  { time: "3 hr ago", actor: "Vipul Patel", action: "emailed Failed KPI summary", detail: "Compliance leads · 8 recipients" },
 ];

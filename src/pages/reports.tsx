@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from "react";
 import { Download, Mail, Send, UploadCloud, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -12,31 +11,13 @@ import {
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Button } from "../components/ui/button";
-
-interface MonthOption {
-  value: string;
-  label: string;
-}
-
-const monthOptions: MonthOption[] = (() => {
-  const arr: MonthOption[] = [];
-  const now = new Date();
-  for (let i = 0; i < 12; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    arr.push({
-      value: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
-      label: d.toLocaleString("en", { month: "long", year: "numeric" }),
-    });
-  }
-  return arr;
-})();
+import { MonthRangePicker, type MonthRangeValue } from "../components/ui/monthRangePicker"; // adjust path to wherever you save this
 
 interface AttendanceState {
   businessType: string;
   plantCodes: string;
   epNumbers: string;
-  from: string;
-  to: string;
+  monthRange: MonthRangeValue;
 }
 
 interface ReportCardProps {
@@ -65,8 +46,7 @@ const Reports: React.FC = () => {
     businessType: "",
     plantCodes: "",
     epNumbers: "",
-    from: "",
-    to: "",
+    monthRange: { from: "", to: "" },
   });
 
   const [file, setFile] = useState<File | null>(null);
@@ -78,6 +58,10 @@ const Reports: React.FC = () => {
     e.preventDefault();
     if (!att.businessType) {
       toast.error("Business Type is required");
+      return;
+    }
+    if (!att.monthRange.from || !att.monthRange.to) {
+      toast.error("Month range is required");
       return;
     }
     toast.success("Attendance report queued for download");
@@ -146,31 +130,13 @@ const Reports: React.FC = () => {
           </div>
           <div className="space-y-1.5">
             <Label className="k-label">Month Range</Label>
-            <div className="flex items-center gap-2">
-              <Select value={att.from} onValueChange={(v) => setAtt({ ...att, from: v })}>
-                <SelectTrigger data-testid="att-from" className="h-10 bg-[#F8FAFC] flex-1">
-                  <SelectValue placeholder="From" />
-                </SelectTrigger>
-                <SelectContent>
-                  {monthOptions.map((m) => (
-                    <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <span className="text-slate-400 text-xs">to</span>
-              <Select value={att.to} onValueChange={(v) => setAtt({ ...att, to: v })}>
-                <SelectTrigger data-testid="att-to" className="h-10 bg-[#F8FAFC] flex-1">
-                  <SelectValue placeholder="To" />
-                </SelectTrigger>
-                <SelectContent>
-                  {monthOptions.map((m) => (
-                    <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <MonthRangePicker
+              testid="att-month-range"
+              value={att.monthRange}
+              onChange={(monthRange) => setAtt({ ...att, monthRange })}
+            />
           </div>
-          <div className="lg:col-span-4 flex justify-end">
+          <div className="lg:col-span-4 justify-end">
             <Button
               data-testid="att-download-btn"
               type="submit"
@@ -261,7 +227,7 @@ const Reports: React.FC = () => {
               onClick={() => submitKpi("email")}
               disabled={uploading}
               variant="outline"
-              className="h-10 bg-[#0891B2] hover:bg-[#0E7490] text-white border-[#0891B2] hover:text-white"
+              className="h-10 bg-[#0891B2] hover:bg-[#0E7490] text-blue border-[#0891B2] hover:text-blue-500"
             >
               <Mail className="w-4 h-4 mr-2" /> Send Email
             </Button>
