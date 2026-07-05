@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useLayoutEffect } from "react";
+import React, { useMemo, useRef, useState, useLayoutEffect, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Download, UploadCloud, Loader2, CheckCircle2, AlertTriangle, XCircle, Filter, Info } from "lucide-react";
 import { Button } from "../components/ui/button";
@@ -72,15 +72,71 @@ interface SummaryCardProps {
   testid?: string;
 }
 
-const SummaryCard: React.FC<SummaryCardProps> = ({ tone, label, value, testid }) => (
-  <div className={`rounded-xl p-5 ${tone}`} data-testid={testid}>
-    <div className="k-label-tag text-[11.5px] font-semibold uppercase tracking-wider">{label}</div>
-    <div className="k-count mono text-[32px] leading-none font-semibold mt-2">{value}</div>
-  </div>
-);
+// Card lifts and tilts toward the cursor in 3D, and the number counts up
+// from 0 whenever `value` changes (e.g. a fresh validation run).
+const SummaryCard: React.FC<SummaryCardProps> = ({ tone, label, value, testid }) => {
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const [displayValue, setDisplayValue] = useState(0);
+
+  // Count-up animation, triggered whenever the target value changes
+  useEffect(() => {
+    let raf = 0;
+    const duration = 700;
+    const start = performance.now();
+    const from = 0;
+    const to = value;
+
+    const step = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      setDisplayValue(Math.round(from + (to - from) * eased));
+      if (progress < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+
+  // Subtle 3D tilt following the cursor, reset smoothly on leave
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    const rotY = x * 8; // max ~8deg, keeps it subtle rather than gimmicky
+    const rotX = y * -8;
+    el.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(4px)`;
+    el.style.boxShadow = "0 12px 24px -8px rgba(15, 23, 42, 0.18)";
+  };
+
+  const handleMouseLeave = () => {
+    const el = cardRef.current;
+    if (!el) return;
+    el.style.transform = "rotateX(0deg) rotateY(0deg) translateZ(0px)";
+    el.style.boxShadow = "none";
+  };
+
+  return (
+    <div style={{ perspective: "900px" }}>
+      <div
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className={`rounded-xl p-5 ${tone} transition-shadow duration-150 ease-out will-change-transform`}
+        style={{ transformStyle: "preserve-3d", transition: "transform 0.15s ease-out, box-shadow 0.15s ease-out" }}
+        data-testid={testid}
+      >
+        <div className="k-label-tag text-[11.5px] font-semibold uppercase tracking-wider">{label}</div>
+        <div className="k-count mono text-[32px] leading-none font-semibold mt-2">{displayValue}</div>
+      </div>
+    </div>
+  );
+};
 
 // Generic floating popover that renders into document.body so it's never
 // clipped by an ancestor's overflow-x-auto / overflow-hidden (e.g. the table wrapper).
+// Uses a frosted-glass surface (blur + translucency) to read as a distinct
+// floating depth layer above the page, rather than a flat overlay.
 const FloatingPopover: React.FC<{
   anchorRef: React.RefObject<HTMLElement | null>;
   open: boolean;
@@ -214,7 +270,7 @@ const LicenseSelectDropdown: React.FC<{ displayValue: string; policies: PolicyEn
       <FloatingPopover anchorRef={anchorRef} open={open} align="left">
         <div
           ref={listRef}
-          className="w-56 rounded-lg border border-slate-200 bg-white shadow-lg py-1.5 overflow-hidden"
+          className="w-56 rounded-lg border border-slate-200/70 bg-white/80 backdrop-blur-md shadow-xl py-1.5 overflow-hidden"
         >
           <div className="text-[10.5px] font-semibold uppercase tracking-wider text-slate-500 px-3 pt-1 pb-1.5">
             License Number{licenseNumbers.length > 1 ? "s" : ""}
@@ -269,7 +325,7 @@ const ValidationChecksButton: React.FC<{ checks: string[] }> = ({ checks }) => {
       />
       <FloatingPopover anchorRef={anchorRef} open={hovered} align="right" placement="top">
         <div
-          className="w-64 rounded-lg border border-slate-200 bg-white shadow-lg p-3"
+          className="w-64 rounded-lg border border-slate-200/70 bg-white/80 backdrop-blur-md shadow-xl p-3"
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
         >
@@ -344,6 +400,20 @@ const Validation: React.FC = () => {
     ? "SUCCESS"
     : null;
 
+  // Ambient wash for the validator card, driven by overall status — a soft
+  // background tint that communicates the "mood" of the results before you
+  // even read the numbers. Deliberately subtle: a wash, not a spotlight.
+  const ambientStyle: React.CSSProperties = useMemo(() => {
+    if (!overall) return {};
+    if (overall === "FAILED") {
+      return { background: "linear-gradient(180deg, rgba(244,63,94,0.05) 0%, rgba(255,255,255,0) 220px)" };
+    }
+    if (overall === "WARNING") {
+      return { background: "linear-gradient(180deg, rgba(245,158,11,0.05) 0%, rgba(255,255,255,0) 220px)" };
+    }
+    return { background: "linear-gradient(180deg, rgba(16,185,129,0.05) 0%, rgba(255,255,255,0) 220px)" };
+  }, [overall]);
+
   const filterChips: Array<{ k: FilterKey; label: string; style: string }> = [
     { k: "ALL", label: "All", style: "border-slate-300 text-slate-700" },
     { k: "SUCCESS", label: "Passed", style: "border-emerald-300 text-emerald-800 bg-emerald-50" },
@@ -392,8 +462,8 @@ const Validation: React.FC = () => {
         <SummaryCard tone="k-summary-danger" label="Failed" value={summary?.failed ?? 0} testid="count-failed" />
       </div>
 
-      <section className="k-card" data-testid="validator-card">
-        <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+      <section className="k-card relative overflow-hidden" style={ambientStyle} data-testid="validator-card">
+        <div className="relative flex items-center justify-between mb-5 flex-wrap gap-3">
           <div>
             <h3 className="text-[15px] font-semibold text-slate-900">Validator</h3>
             <p className="text-[12px] text-slate-500 mt-0.5">Pick a validation type and upload an Excel or CSV file.</p>
@@ -409,7 +479,7 @@ const Validation: React.FC = () => {
           )}
         </div>
 
-        <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
+        <form onSubmit={submit} className="relative grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
           <div className="lg:col-span-3 space-y-1.5">
             <Label className="k-label">Validation Type</Label>
             <Select value={type} onValueChange={setType}>
@@ -466,7 +536,7 @@ const Validation: React.FC = () => {
         </form>
 
         {preview && (
-          <div className="mt-7" data-testid="validation-results">
+          <div className="relative mt-7" data-testid="validation-results">
             <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
               <div className="flex items-center gap-2 text-[13px]">
                 <Filter className="w-3.5 h-3.5 text-slate-500" />
