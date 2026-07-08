@@ -280,3 +280,15 @@ code, .mono {
   background: linear-gradient(90deg, #00B16B 0%, #006DB6 35%, #8E278F 65%, #F04C23 100%);
   border-radius: 99px;
 }
+
+@keyframes k-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+} 
+.k-marquee-track {
+  animation: k-marquee 38s linear infinite;
+}
+
+.k-marquee-track:hover {
+  animation-play-state: paused;
+}       

@@ -1,4 +1,4 @@
-`import React from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowUpRight, ArrowDownRight, FileText, Database, ShieldCheck, Activity, Clock } from "lucide-react";
@@ -93,41 +93,45 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="kpi-grid">
-        {dashboardStats.map((s, i) => {
-          const negative = s.delta.startsWith("-");
-          const percent = 40 + i * 15;
-          return (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="k-card k-lift relative overflow-hidden"
-            >
-              {/* status rail — the one recurring signature element across the app */}
-              <span
-                aria-hidden="true"
-                className={`absolute left-0 top-0 h-full w-[3px] ${
-                  s.tone === "teal" ? "bg-[color:var(--teal)]" : s.tone === "navy" ? "bg-slate-300" : s.tone === "green" ? "bg-emerald-500" : "bg-rose-500"
-                }`}
-              />
-              <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">{s.label}</div>
-              <div className="flex items-end justify-between mt-3">
-                <div className="mono text-[32px] leading-none font-semibold text-slate-900">{s.value}</div>
-                <MiniGauge percent={percent} strokeClass={toneStroke[s.tone]} />
-              </div>
-              <div className="mt-4 flex items-center justify-between">
-                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium border ${toneStyle[s.tone]}`}>
-                  {negative ? <ArrowDownRight className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
-                  {s.delta}
-                </span>
-                <span className="text-[10.5px] text-slate-400 mono">{percent}%</span>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
+      <div className="relative overflow-hidden" data-testid="kpi-grid">
+  <div
+    className="flex gap-4 w-max k-marquee-track"
+  >
+    {/* render the stats twice back-to-back so the loop is seamless */}
+    {[...dashboardStats, ...dashboardStats].map((s, i) => {
+      const negative = s.delta.startsWith("-");
+      const percent = 40 + (i % dashboardStats.length) * 15;
+      return (
+        <motion.div
+          key={`${s.label}-${i}`}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: (i % dashboardStats.length) * 0.05 }}
+          className="k-card k-lift relative overflow-hidden w-[330px] shrink-0"
+        >
+          <span
+            aria-hidden="true"
+            className={`absolute left-0 top-0 h-full w-[3px] ${
+              s.tone === "teal" ? "bg-[color:var(--teal)]" : s.tone === "navy" ? "bg-slate-300" : s.tone === "green" ? "bg-emerald-500" : "bg-rose-500"
+            }`}
+          />
+          <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">{s.label}</div>
+          <div className="flex items-end justify-between mt-3">
+            <div className="mono text-[32px] leading-none font-semibold text-slate-900">{s.value}</div>
+            <MiniGauge percent={percent} strokeClass={toneStroke[s.tone]} />
+          </div>
+          <div className="mt-4 flex items-center justify-between">
+            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium border ${toneStyle[s.tone]}`}>
+              {negative ? <ArrowDownRight className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
+              {s.delta}
+            </span>
+            <span className="text-[10.5px] text-slate-400 mono">{percent}%</span>
+          </div>
+        </motion.div>
+      );
+    })}
+  </div>
+</div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-2 k-card">
